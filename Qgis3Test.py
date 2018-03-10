@@ -188,8 +188,6 @@ class Qgis3Test:
         del self.toolbar
 
     def run_waiting(self):
-        print('hej')
-        #self.wait_dlg.show()
         from .widgets.waiting_msg import WaitingMsg
         WaitingMsg = WaitingMsg()
         task = QgsTask.fromFunction('waiting', WaitingMsg.run)
@@ -206,8 +204,18 @@ class Qgis3Test:
         counting = int(self.dlg.LESeconds.text())
         from .widgets.counting_base import CountingTest
         CountingTest = CountingTest()
-        task = QgsTask.fromFunction('counting', CountingTest.run_count, counting)
+        #CountingTest.run_count(counting)
+        task = QgsTask.fromFunction('counting', CountingTest.run_count,
+                                    counting, on_finished=self.gather_data)
         self.tsk_mngr.addTask(task)
+
+    def gather_data(self, result, value):#, val2):
+        print(value)
+        #print(val2)
+        print(result)
+        print(dir(result))
+        if result == QgsTask.ResultSuccess:
+            print(value)
 
     def run(self):
         """Run method that performs all the real work"""

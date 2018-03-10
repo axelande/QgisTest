@@ -22,10 +22,9 @@
 """
 
 import os
-from time import sleep
+from time import sleep, time
 
-from PyQt5 import uic
-from PyQt5 import QtWidgets
+from PyQt5 import uic, QtWidgets, QtCore
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
     os.path.dirname(__file__), 'counting_base.ui'))
@@ -41,10 +40,30 @@ class CountingTest(QtWidgets.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.my_timer = None
+        self.task = None
+        self.counting = None
+        self.t0 = None
+
+    def _update_text(self):
+        tid = int(time() - self.t0)
+        self.LSeconds.setText(str(tid))
+        self.update()
+        if tid == self.counting:
+            self.done(0)
+            return self.counting
+        if self.task.isCanceled():
+            self.done(0)
+            return
 
     def run_count(self, task, counting):
+        self.counting = int(counting)
+        self.t0 = time()
+        self.task = task
         self.show()
-        for i in range(counting):
-            self.LSeconds.setText(str(counting - i))
-            sleep(1)
+        self.my_timer = QtCore.QTimer(self)
+        self.my_timer.timeout.connect(self._update_text)
+        self.my_timer.start(1000)  # 1 sec intervall
         self.exec_()
+        self.done(0)
+        return counting

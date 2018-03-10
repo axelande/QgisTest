@@ -23,7 +23,7 @@
 
 import os
 import sys
-from PyQt5 import QtWidgets, uic
+from PyQt5 import QtWidgets, uic, QtCore
 from time import sleep
 
 FORM_CLASS, _ = uic.loadUiType(os.path.join(
@@ -40,23 +40,25 @@ class WaitingMsg(QtWidgets.QDialog, FORM_CLASS):
         # http://qt-project.org/doc/qt-4.8/designer-using-a-ui-file.html
         # #widgets-and-dialogs-with-auto-connect
         self.setupUi(self)
+        self.cancel_is_set = False
+        self.task = None
+        self.my_timer = None
+
+    def set_cancel(self):
+        if self.task.isCanceled():
+            self.done(0)
+            return
+        else:
+            pass
 
     def run(self, task):
-        #app = QtWidgets.QApplication(sys.argv)
-        self.LWatingMsgs.setText('test')
+        #self.LWatingMsgs.setText('test')
+        self.task = task
         self.show()
-        running = True
-        while running:
-            if task.isCanceled():
-                self.done(0)
-                task.terminated()
-                running = False
-            else:
-                sleep(1)
+        self.my_timer = QtCore.QTimer(self)
+        self.my_timer.timeout.connect(self.set_cancel)
+        self.my_timer.start(1000)  # 1 sec intervall
+        self.update()
         self.exec_()
-        #sys.exit(app.exec_())
-
-
-
-
-
+        self.done(0)
+        return
