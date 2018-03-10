@@ -45,15 +45,16 @@ class WaitingMsg(QtWidgets.QDialog, FORM_CLASS):
         self.my_timer = None
 
     def set_cancel(self):
-        if self.task.isCanceled():
-            self.done(0)
-            return
-        else:
-            pass
+        pass
+        #if self.task.isCanceled():
+        #    self.done(0)
+        #    return
+        #else:
+        #    pass
 
-    def run(self, task):
+    def run(self):#, task):
         #self.LWatingMsgs.setText('test')
-        self.task = task
+        #self.task = task
         self.show()
         self.my_timer = QtCore.QTimer(self)
         self.my_timer.timeout.connect(self.set_cancel)

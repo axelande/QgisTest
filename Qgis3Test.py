@@ -190,8 +190,9 @@ class Qgis3Test:
     def run_waiting(self):
         from .widgets.waiting_msg import WaitingMsg
         WaitingMsg = WaitingMsg()
-        task = QgsTask.fromFunction('waiting', WaitingMsg.run)
-        self.tsk_mngr.addTask(task)
+        WaitingMsg.run()
+        #task = QgsTask.fromFunction('waiting', WaitingMsg.run)
+        #self.tsk_mngr.addTask(task)
 
     def stop_waiting(self):
         for task in self.tsk_mngr.tasks():
@@ -204,10 +205,11 @@ class Qgis3Test:
         counting = int(self.dlg.LESeconds.text())
         from .widgets.counting_base import CountingTest
         CountingTest = CountingTest()
+        a = CountingTest.run_count(counting)
         #CountingTest.run_count(counting)
-        task = QgsTask.fromFunction('counting', CountingTest.run_count,
-                                    counting, on_finished=self.gather_data)
-        self.tsk_mngr.addTask(task)
+        #task = QgsTask.fromFunction('counting', CountingTest.run_count,
+        #                            counting, on_finished=self.gather_data)
+        #self.tsk_mngr.addTask(task)
 
     def gather_data(self, result, value):#, val2):
         print(value)
