@@ -52,18 +52,20 @@ class CountingTest(QtWidgets.QDialog, FORM_CLASS):
         if tid == self.counting:
             self.done(0)
             return self.counting
-        if self.task.isCanceled():
-            self.done(0)
-            return
+        #if self.task.isCanceled():
+        #    self.done(0)
+        #    return
 
-    def run_count(self, task, counting):
+    def run_count(self, task, counting): #, task
         self.counting = int(counting)
+        print(counting)
         self.t0 = time()
         self.task = task
         self.show()
         self.my_timer = QtCore.QTimer(self)
         self.my_timer.timeout.connect(self._update_text)
         self.my_timer.start(1000)  # 1 sec intervall
+        sleep(1.1)
         self.exec_()
         self.done(0)
         return counting

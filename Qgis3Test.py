@@ -24,12 +24,15 @@ from PyQt5.QtCore import QSettings, QTranslator, qVersion, QCoreApplication
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QAction
 from qgis.core import QgsTask, QgsApplication
-
+import time
 # Initialize Qt resources from file resources.py
 from .resources import *
 # Import the code for the dialog
+
+
 from .Qgis3Test_dialog import Qgis3TestDialog
-from .widgets import counting_base, waiting_msg
+from .widgets.counting_base import CountingTest
+from .widgets.waiting_msg import WaitingMsg
 import os.path
 
 
@@ -188,34 +191,31 @@ class Qgis3Test:
         del self.toolbar
 
     def run_waiting(self):
-        from .widgets.waiting_msg import WaitingMsg
-        WaitingMsg = WaitingMsg()
-        task = QgsTask.fromFunction('waiting', WaitingMsg.run)
+        waiting_msg = WaitingMsg()
+        task = QgsTask.fromFunction('waiting', waiting_msg.run)
         self.tsk_mngr.addTask(task)
+
+    def stop_from_counting(self, result, value):
+        self.stop_waiting()
 
     def stop_waiting(self):
         for task in self.tsk_mngr.tasks():
-            print(task.description())
             if task.description() == 'waiting':
                 task.cancel()
-                print('stopped')
 
     def run_counting(self):
         counting = int(self.dlg.LESeconds.text())
-        from .widgets.counting_base import CountingTest
-        CountingTest = CountingTest()
-        #CountingTest.run_count(counting)
-        task = QgsTask.fromFunction('counting', CountingTest.run_count,
-                                    counting, on_finished=self.gather_data)
-        self.tsk_mngr.addTask(task)
+        counting_test = CountingTest()
+        task1 = QgsTask.fromFunction('counting', counting_test.run_count,
+                                     counting,
+                                     on_finished=self.stop_from_counting)
 
-    def gather_data(self, result, value):#, val2):
-        print(value)
-        #print(val2)
-        print(result)
-        print(dir(result))
-        if result == QgsTask.ResultSuccess:
-            print(value)
+        waiting_msg = WaitingMsg()
+        task2 = QgsTask.fromFunction('waiting', waiting_msg.run)
+        self.tsk_mngr.addTask(task1)
+        print(1)
+        #time.sleep(.1)
+        self.tsk_mngr.addTask(task2)
 
     def run(self):
         """Run method that performs all the real work"""
